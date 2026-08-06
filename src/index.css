@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/style.css';
+
+@theme {
+  --color-ink-950: #ffffff;
+  --color-ink-900: #f5f7fb;
+  --color-ink-850: #ffffff;
+  --color-ink-800: #eef2f7;
+  --color-ink-700: #dce2eb;
+  --color-ink-600: #c1cad8;
+  --color-ink-400: #6b7485;
+  --color-ink-300: #465267;
+  --color-ink-100: #172033;
+
+  --color-brand: #2563eb;
+  --color-warn: #b45309;
+  --color-good: #087f5b;
+  --color-bad: #d92d45;
+
+  --color-line-say: #2563eb;
+  --color-line-narration: #64748b;
+  --color-line-choice: #c2410c;
+  --color-line-jump: #07805b;
+  --color-line-set: #087ea4;
+  --color-line-note: #7c3aed;
+  --color-line-stage: #db2777;
+  --color-flow-edge: #64748b;
+  --color-flow-grid: #cbd3df;
+
+  --font-sans: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, sans-serif;
+  --font-serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif;
+}
+
+/* テーマ変数だけを差し替え、すべてのUI部品で同じ明暗関係を保つ */
+[data-theme='dark'] {
+  --color-ink-950: #0d0f14;
+  --color-ink-900: #12141a;
+  --color-ink-850: #161922;
+  --color-ink-800: #1b1f2a;
+  --color-ink-700: #252a38;
+  --color-ink-600: #333a4d;
+  --color-ink-400: #6d768d;
+  --color-ink-300: #9aa2b4;
+  --color-ink-100: #e7e9ee;
+
+  --color-brand: #6ea8ff;
+  --color-warn: #ffb86e;
+  --color-good: #5ed6a4;
+  --color-bad: #ff6e78;
+
+  --color-line-say: #6ea8ff;
+  --color-line-narration: #8b93a7;
+  --color-line-choice: #ffb86e;
+  --color-line-jump: #5ed6a4;
+  --color-line-set: #78dce8;
+  --color-line-note: #b57edc;
+  --color-line-stage: #ff7ab8;
+  --color-flow-edge: #4a5268;
+  --color-flow-grid: #252a38;
+}
+
+/* ゲーム画面は編集テーマから独立させ、背景画像上の可読性を維持する */
+.preview-player {
+  --color-ink-950: #0d0f14;
+  --color-ink-900: #12141a;
+  --color-ink-850: #161922;
+  --color-ink-800: #1b1f2a;
+  --color-ink-700: #252a38;
+  --color-ink-600: #333a4d;
+  --color-ink-400: #6d768d;
+  --color-ink-300: #9aa2b4;
+  --color-ink-100: #e7e9ee;
+  --color-brand: #6ea8ff;
+  --color-warn: #ffb86e;
+  --color-good: #5ed6a4;
+  --color-bad: #ff6e78;
+  color: var(--color-ink-100);
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-ink-900 text-ink-100 font-sans text-sm antialiased overflow-hidden;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ink-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-600;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@utility field-input {
+  @apply w-full rounded-md border border-ink-700 bg-ink-950/60 px-2.5 py-1.5 text-ink-100
+         placeholder:text-ink-400 outline-none transition
+         focus:border-brand focus:ring-2 focus:ring-brand/25;
+}
+
+/* React Flow をアプリのテーマに合わせる */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__handle {
+  @apply border-ink-600! bg-ink-600!;
+}
+.react-flow__controls-button {
+  @apply border-ink-700! bg-ink-800! fill-ink-100! hover:bg-ink-700!;
+}
+
+/* 検索結果から移動した台本行を短時間だけ強調する */
+@keyframes search-result-flash {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  20%, 70% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 55%, transparent); }
+}
+.search-result-flash {
+  animation: search-result-flash 1.8s ease-out;
+}
+
+/* プレビューの演出コマンド */
+@keyframes stage-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes stage-flash { 0%, 100% { opacity: 0; } 35% { opacity: 0.92; } }
+@keyframes stage-dim { 0%, 100% { opacity: 0; } 45%, 65% { opacity: 0.88; } }
+@keyframes stage-shake {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-8px, 3px); }
+  40% { transform: translate(7px, -4px); }
+  60% { transform: translate(-5px, -2px); }
+  80% { transform: translate(5px, 3px); }
+}
+.stage-fade { animation: stage-fade 350ms ease-out; }
+.stage-flash { animation: stage-flash 500ms ease-out; }
+.stage-dim { animation: stage-dim 700ms ease-in-out; }
+.stage-shake { animation: stage-shake 420ms ease-out; }

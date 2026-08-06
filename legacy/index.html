@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scenario Editor — ゲームシナリオ作成</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">📖 Scenario Editor</div>
+  <input id="projectTitle" class="title-input" placeholder="プロジェクト名">
+  <div class="spacer"></div>
+  <span id="saveState" class="save-state">—</span>
+  <button id="btnPreview" class="primary">▶ プレビュー</button>
+  <div class="menu">
+    <button id="btnFile">ファイル ▾</button>
+    <div class="menu-list" id="fileMenu" hidden>
+      <button data-act="new">新規プロジェクト</button>
+      <button data-act="export">JSON書き出し</button>
+      <button data-act="import">JSON読み込み</button>
+      <button data-act="exportTxt">台本テキスト書き出し</button>
+      <button data-act="sample">サンプルを読み込む</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- 左: シーン一覧 & キャラクター -->
+  <aside class="sidebar">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>シーン</h2>
+        <button id="btnAddScene" class="mini">＋</button>
+      </div>
+      <ul id="sceneList" class="scene-list"></ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>キャラクター</h2>
+        <button id="btnAddChar" class="mini">＋</button>
+      </div>
+      <ul id="charList" class="char-list"></ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>統計</h2></div>
+      <div id="stats" class="stats"></div>
+    </section>
+  </aside>
+
+  <!-- 中央: シーンエディタ -->
+  <section class="editor">
+    <div id="sceneHeader" class="scene-header"></div>
+    <div id="lines" class="lines"></div>
+    <div class="add-bar" id="addBar"></div>
+  </section>
+
+  <!-- 右: フロー図 -->
+  <aside class="flow-pane">
+    <div class="panel-head"><h2>フロー</h2></div>
+    <div id="flow" class="flow"></div>
+  </aside>
+</main>
+
+<!-- プレビュー -->
+<div id="preview" class="preview" hidden>
+  <div class="pv-stage" id="pvStage">
+    <div class="pv-bg" id="pvBg"></div>
+    <div class="pv-close"><button id="pvClose">✕ 閉じる</button></div>
+    <div class="pv-box" id="pvBox">
+      <div class="pv-name" id="pvName"></div>
+      <div class="pv-text" id="pvText"></div>
+      <div class="pv-choices" id="pvChoices"></div>
+      <div class="pv-hint" id="pvHint">クリック / スペースで進む</div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="application/json" hidden>
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
