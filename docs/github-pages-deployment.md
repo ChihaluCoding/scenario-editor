@@ -3,7 +3,7 @@
 ## スコープ
 
 - `ChihaluCoding/scenario-editor` の `main` ブランチを公開元とする。
-- GitHub Actionsで品質確認、Viteビルド、GitHub Pages公開を自動実行する。
+- GitHub Actionsで品質確認とViteビルドを実行し、成果物を `gh-pages` ブランチへ自動配置する。
 - 公開URLは `https://chihalucoding.github.io/scenario-editor/` とする。
 
 ## 制約
@@ -16,7 +16,7 @@
 
 - `npm run lint`、`npm test`、`npm run build` が成功する。
 - `dist/index.html` のビルド済みアセット参照が相対パスになる。
-- `main` へのpushでPagesワークフローが実行される。
+- `main` へのpushでPagesワークフローが実行され、`gh-pages` ブランチが更新される。
 - 公開URLからエディターを表示できる。
 
 ## 非対象
