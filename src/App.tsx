@@ -94,7 +94,8 @@ export default function App() {
           <VariablePanel />
         </aside>
 
-        <main className="flex min-w-0 flex-col">
+        {/* min-h-0/min-w-0 がないとグリッドアイテムが中身の高さに広がり、内側の overflow-y-auto が効かない */}
+        <main className="flex min-h-0 min-w-0 flex-col">
           <nav className="flex shrink-0 gap-1 border-b border-ink-700 bg-ink-850 px-3">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
