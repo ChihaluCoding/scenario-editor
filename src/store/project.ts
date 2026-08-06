@@ -84,21 +84,30 @@ let lastCoalesce: { key: string; at: number } | null = null
 function prune(draft: Project) {
   const sceneIds = new Set(draft.scenes.map((s) => s.id))
   const varIds = new Set(draft.variables.map((v) => v.id))
+  // 注意: ここに渡るオブジェクトは「patch でそのまま代入された前 state の凍結オブジェクト」の
+  // ことがある。無条件に代入すると凍結エラーになるため、実際に不要な参照があるときだけ書き換える。
   const cleanCond = (holder: { cond?: { items: { varId: string }[] } }) => {
     if (!holder.cond) return
-    holder.cond.items = holder.cond.items.filter((c) => varIds.has(c.varId))
+    if (holder.cond.items.some((c) => !varIds.has(c.varId))) {
+      holder.cond.items = holder.cond.items.filter((c) => varIds.has(c.varId))
+    }
     if (holder.cond.items.length === 0) delete holder.cond
+  }
+  const cleanEffects = (holder: { effects: { varId: string }[] }) => {
+    if (holder.effects.some((e) => !varIds.has(e.varId))) {
+      holder.effects = holder.effects.filter((e) => varIds.has(e.varId))
+    }
   }
 
   const cleanLines = (lines: Line[]) => {
     for (const line of lines) {
       cleanCond(line)
       if (line.kind === 'jump' && line.next && !sceneIds.has(line.next)) line.next = ''
-      if (line.kind === 'set') line.effects = line.effects.filter((e) => varIds.has(e.varId))
+      if (line.kind === 'set') cleanEffects(line)
       if (line.kind === 'choice') {
         for (const opt of line.options) {
           cleanCond(opt)
-          opt.effects = opt.effects.filter((e) => varIds.has(e.varId))
+          cleanEffects(opt)
           if (opt.next && !sceneIds.has(opt.next)) opt.next = ''
         }
       }
