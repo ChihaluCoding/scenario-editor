@@ -3,7 +3,8 @@ import { CSS } from '@dnd-kit/utilities'
 import { clsx } from 'clsx'
 import { nanoid } from 'nanoid'
 import { Bookmark, EyeOff, GripVertical, ListTodo, Plus, Trash2, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
+import { choiceTextDraftReducer, createChoiceTextDraft } from '@/lib/choiceTextDraft'
 import { useProject } from '@/store/project'
 import { LINE_META, type ChoiceOption, type Line } from '@/types'
 import { AutoTextarea, Button, IconButton } from './ui'
@@ -51,13 +52,33 @@ function ChoiceOptionRow({
   onDelete: () => void
 }) {
   const hasVariables = useProject((s) => s.project.variables.length > 0)
+  const [textDraft, dispatchTextDraft] = useReducer(choiceTextDraftReducer, option.text, createChoiceTextDraft)
+  const composingRef = useRef(false)
+
+  useEffect(() => {
+    dispatchTextDraft({ type: 'sync', value: option.text })
+  }, [option.text])
+
   return (
     <div className="rounded-lg border border-ink-700 bg-ink-900/60 p-2">
       <div className="flex items-center gap-2">
         <span className="w-4 text-center text-xs text-ink-400">{index + 1}</span>
         <input
-          value={option.text}
-          onChange={(e) => onChange({ text: e.target.value })}
+          value={textDraft.value}
+          onCompositionStart={() => {
+            composingRef.current = true
+            dispatchTextDraft({ type: 'composition-start' })
+          }}
+          onCompositionEnd={(event) => {
+            composingRef.current = false
+            dispatchTextDraft({ type: 'composition-end', value: event.currentTarget.value })
+            onChange({ text: event.currentTarget.value })
+          }}
+          onChange={(event) => {
+            const value = event.target.value
+            dispatchTextDraft({ type: 'input', value })
+            if (!composingRef.current) onChange({ text: value })
+          }}
           placeholder="選択肢のテキスト"
           className="field-input flex-1"
         />
