@@ -125,7 +125,7 @@ export function SceneList() {
     <section>
       <PanelHeading
         action={
-          <IconButton size="sm" label="シーンを追加" variant="ghost" onClick={addScene}>
+          <IconButton size="sm" label="現在のチャプターにシーンを追加" variant="ghost" onClick={() => addScene()}>
             <Plus size={14} />
           </IconButton>
         }
@@ -160,19 +160,24 @@ export function SceneList() {
               const isCollapsed = collapsed.has(chapter)
               return (
                 <div key={chapter}>
-                  <button
-                    onClick={() => setCollapsed((current) => {
-                      const next = new Set(current)
-                      if (next.has(chapter)) next.delete(chapter)
-                      else next.add(chapter)
-                      return next
-                    })}
-                    className="mb-0.5 flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] font-semibold tracking-[0.06em] text-ink-400 uppercase transition-colors hover:bg-ink-800 hover:text-ink-100"
-                  >
-                    {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-                    <span className="truncate">{chapter}</span>
-                    <span className="ml-auto">{chapterScenes.length}</span>
-                  </button>
+                  <div className="mb-0.5 flex items-center gap-0.5">
+                    <button
+                      onClick={() => setCollapsed((current) => {
+                        const next = new Set(current)
+                        if (next.has(chapter)) next.delete(chapter)
+                        else next.add(chapter)
+                        return next
+                      })}
+                      className="flex min-w-0 flex-1 items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] font-semibold tracking-[0.06em] text-ink-400 uppercase transition-colors hover:bg-ink-800 hover:text-ink-100"
+                    >
+                      {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+                      <span className="truncate">{chapter}</span>
+                      <span className="ml-auto">{chapterScenes.length}</span>
+                    </button>
+                    <IconButton size="sm" label={`「${chapter}」にシーンを追加`} variant="ghost" onClick={() => addScene(chapter)}>
+                      <Plus size={12} />
+                    </IconButton>
+                  </div>
                   {!isCollapsed && (
                     <ul className="flex flex-col gap-0.5">
                       {chapterScenes.map((scene) => <SceneRow key={scene.id} scene={scene} index={scenes.indexOf(scene)} />)}

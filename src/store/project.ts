@@ -15,6 +15,7 @@ import {
 import { blankProject, newCharacter, newLine, newScene, newVariable } from '@/lib/factory'
 import * as db from '@/lib/db'
 import { cloneTemplateLines } from '@/lib/templates'
+import { getSceneInsertionPlan } from '@/lib/sceneInsertion'
 
 const HISTORY_LIMIT = 100
 /** 連続入力を1つの Undo にまとめる猶予（ms） */
@@ -59,7 +60,7 @@ interface ProjectStore {
   redo: () => void
 
   selectScene: (id: string) => void
-  addScene: () => void
+  addScene: (chapter?: string) => void
   removeScene: (id: string) => void
   duplicateScene: (id: string) => void
   setStartScene: (id: string) => void
@@ -304,14 +305,17 @@ export const useProject = create<ProjectStore>()((set, get) => {
 
     selectScene: (id) => set({ selectedSceneId: id }),
 
-    addScene: () => {
-      const last = get().project.scenes.at(-1)
+    addScene: (requestedChapter) => {
+      const { project, selectedSceneId } = get()
+      const placement = getSceneInsertionPlan(project.scenes, selectedSceneId, requestedChapter)
+      const anchor = project.scenes[placement.index - 1] ?? project.scenes.at(-1)
       const scene = newScene(`シーン ${get().project.scenes.length + 1}`, {
-        x: (last?.pos.x ?? 0) + 40,
-        y: (last?.pos.y ?? 0) + 200,
+        x: (anchor?.pos.x ?? 0) + 40,
+        y: (anchor?.pos.y ?? 0) + 200,
       })
+      scene.chapter = placement.chapter
       edit((d) => {
-        d.scenes.push(scene)
+        d.scenes.splice(placement.index, 0, scene)
       })
       set({ selectedSceneId: scene.id })
     },
