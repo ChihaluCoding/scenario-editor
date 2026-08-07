@@ -28,6 +28,12 @@ type Recipe = (draft: Project) => void
 interface EditOptions {
   /** 同じキーの編集が短時間に続く場合、履歴を1件にまとめる（テキスト入力向け） */
   coalesce?: string
+  /**
+   * 参照の掃除（prune）を省略する。prune は全シーン・全テンプレートの行を走査して
+   * immer のプロキシを作るため、1打鍵ごとに走ると入力が重くなる。
+   * シーン・変数・キャラを削除しない編集（patch 適用など）では参照が壊れないので省略できる。
+   */
+  skipPrune?: boolean
 }
 
 interface ProjectStore {
@@ -125,7 +131,8 @@ let lastBackupAt = 0
 
 function scheduleSave(project: Project, set: (partial: Partial<ProjectStore>) => void) {
   if (saveTimer) clearTimeout(saveTimer)
-  set({ saving: true })
+  // 打鍵ごとに set すると saving を購読しているコンポーネントが毎回再描画される
+  if (!useProject.getState().saving) set({ saving: true })
   saveTimer = setTimeout(async () => {
     await db.saveProject(project)
     if (Date.now() - lastBackupAt > BACKUP_INTERVAL_MS) {
@@ -147,7 +154,7 @@ export const useProject = create<ProjectStore>()((set, get) => {
     const { project, past } = get()
     const next = produce(project, (draft) => {
       recipe(draft)
-      prune(draft)
+      if (!opts?.skipPrune) prune(draft)
     })
     if (next === project) return
 
@@ -347,7 +354,7 @@ export const useProject = create<ProjectStore>()((set, get) => {
           const s = d.scenes.find((x) => x.id === id)
           if (s) s.pos = pos
         },
-        { coalesce: `move:${id}` },
+        { coalesce: `move:${id}`, skipPrune: true },
       ),
 
     updateScene: (id, patch) =>
@@ -356,7 +363,7 @@ export const useProject = create<ProjectStore>()((set, get) => {
           const scene = d.scenes.find((item) => item.id === id)
           if (scene) Object.assign(scene, patch)
         },
-        { coalesce: `scene:${id}:${Object.keys(patch).join()}` },
+        { coalesce: `scene:${id}:${Object.keys(patch).join()}`, skipPrune: true },
       ),
 
     addCharacter: (name) =>
@@ -370,7 +377,7 @@ export const useProject = create<ProjectStore>()((set, get) => {
           const c = d.characters.find((x) => x.id === id)
           if (c) Object.assign(c, patch)
         },
-        { coalesce: `char:${id}:${Object.keys(patch).join()}` },
+        { coalesce: `char:${id}:${Object.keys(patch).join()}`, skipPrune: true },
       ),
 
     removeCharacter: (id) =>
@@ -395,7 +402,7 @@ export const useProject = create<ProjectStore>()((set, get) => {
           const v = d.variables.find((x) => x.id === id)
           if (v) Object.assign(v, patch)
         },
-        { coalesce: `var:${id}:${Object.keys(patch).join()}` },
+        { coalesce: `var:${id}:${Object.keys(patch).join()}`, skipPrune: true },
       ),
 
     removeVariable: (id) =>
@@ -404,13 +411,16 @@ export const useProject = create<ProjectStore>()((set, get) => {
       }),
 
     addLine: (sceneId, kind, atIndex) =>
-      edit((d) => {
-        const s = d.scenes.find((x) => x.id === sceneId)
-        if (!s) return
-        const line = newLine(kind)
-        if (atIndex == null) s.lines.push(line)
-        else s.lines.splice(atIndex, 0, line)
-      }),
+      edit(
+        (d) => {
+          const s = d.scenes.find((x) => x.id === sceneId)
+          if (!s) return
+          const line = newLine(kind)
+          if (atIndex == null) s.lines.push(line)
+          else s.lines.splice(atIndex, 0, line)
+        },
+        { skipPrune: true },
+      ),
 
     updateLine: (sceneId, lineId, patch) =>
       edit(
@@ -419,22 +429,28 @@ export const useProject = create<ProjectStore>()((set, get) => {
           const l = s?.lines.find((x) => x.id === lineId)
           if (l) Object.assign(l, patch)
         },
-        { coalesce: `line:${lineId}:${Object.keys(patch).join()}` },
+        { coalesce: `line:${lineId}:${Object.keys(patch).join()}`, skipPrune: true },
       ),
 
     removeLine: (sceneId, lineId) =>
-      edit((d) => {
-        const s = d.scenes.find((x) => x.id === sceneId)
-        if (s) s.lines = s.lines.filter((l) => l.id !== lineId)
-      }),
+      edit(
+        (d) => {
+          const s = d.scenes.find((x) => x.id === sceneId)
+          if (s) s.lines = s.lines.filter((l) => l.id !== lineId)
+        },
+        { skipPrune: true },
+      ),
 
     reorderLines: (sceneId, from, to) =>
-      edit((d) => {
-        const s = d.scenes.find((x) => x.id === sceneId)
-        if (!s) return
-        const [moved] = s.lines.splice(from, 1)
-        s.lines.splice(to, 0, moved)
-      }),
+      edit(
+        (d) => {
+          const s = d.scenes.find((x) => x.id === sceneId)
+          if (!s) return
+          const [moved] = s.lines.splice(from, 1)
+          s.lines.splice(to, 0, moved)
+        },
+        { skipPrune: true },
+      ),
 
     addTemplate: (sceneId, name) =>
       edit((d) => {

@@ -23,7 +23,7 @@ export function TemplateManager({ sceneId, lineCount }: { sceneId: string; lineC
 
   return (
     <>
-      <Button variant="solid" className="shrink-0 text-xs" onClick={() => setOpen(true)}>
+      <Button variant="solid" onClick={() => setOpen(true)}>
         <Layers3 size={14} />
         テンプレート
       </Button>
@@ -52,7 +52,7 @@ export function TemplateManager({ sceneId, lineCount }: { sceneId: string; lineC
                 </div>
                 <Button
                   variant="solid"
-                  className="text-xs"
+                  size="sm"
                   onClick={() => {
                     applyTemplate(sceneId, template.id)
                     toast(`「${template.name}」を追加しました`)
@@ -61,7 +61,7 @@ export function TemplateManager({ sceneId, lineCount }: { sceneId: string; lineC
                   <CopyPlus size={13} />
                   追加
                 </Button>
-                <IconButton label="テンプレートを削除" variant="danger" onClick={async () => {
+                <IconButton size="sm" label="テンプレートを削除" variant="danger" onClick={async () => {
                   const accepted = await confirmAction({
                     title: `「${template.name}」を削除しますか？`,
                     description: '保存済みのテンプレートが削除されます。',
@@ -70,7 +70,7 @@ export function TemplateManager({ sceneId, lineCount }: { sceneId: string; lineC
                   })
                   if (accepted) removeTemplate(template.id)
                 }}>
-                  <Trash2 size={14} />
+                  <Trash2 size={12} />
                 </IconButton>
               </li>
             ))}

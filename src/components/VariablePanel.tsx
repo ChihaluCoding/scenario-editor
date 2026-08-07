@@ -86,13 +86,14 @@ export function VariablePanel() {
     <section>
       <PanelHeading
         action={
-          <Button
+          <IconButton
+            size="sm"
+            label="変数を追加"
             variant="ghost"
-            className="px-1.5 py-0.5 text-ink-300"
             onClick={() => addVariable(`変数 ${variables.length + 1}`, 'number')}
           >
             <Plus size={14} />
-          </Button>
+          </IconButton>
         }
       >
         変数・フラグ ({variables.length})
@@ -108,16 +109,17 @@ export function VariablePanel() {
         {variables.map((v) => {
           const Icon = TYPE_META[v.type].icon
           return (
-            <li key={v.id} className="group flex items-center gap-2 rounded-lg px-1.5 py-1.5 transition hover:bg-ink-800">
+            <li key={v.id} className="group flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-ink-800">
               <button onClick={() => setEditing(v.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
-                <Icon size={14} className="shrink-0 text-ink-400" />
-                <span className="truncate">{v.name}</span>
-                <span className="shrink-0 text-[11px] text-ink-400">= {formatValue(v.initial)}</span>
+                <Icon size={13} className="shrink-0 text-ink-400" />
+                <span className="truncate text-ink-300">{v.name}</span>
+                <span className="shrink-0 text-[11px] tabular-nums text-ink-400">= {formatValue(v.initial)}</span>
               </button>
               <IconButton
+                size="sm"
                 label="削除"
                 variant="danger"
-                className="opacity-0 transition group-hover:opacity-100"
+                className="context-actions opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
                 onClick={async () => {
                   const accepted = await confirmAction({
                     title: `変数「${v.name}」を削除しますか？`,
@@ -128,7 +130,7 @@ export function VariablePanel() {
                   if (accepted) removeVariable(v.id)
                 }}
               >
-                <Trash2 size={13} />
+                <Trash2 size={12} />
               </IconButton>
             </li>
           )

@@ -31,7 +31,7 @@ function StagePortrait({ entry, position, characters }: { entry?: StageCharacter
       src={url}
       alt={character?.name ?? ''}
       className={clsx(
-        'pointer-events-none absolute bottom-0 z-[2] max-h-[78%] max-w-[42%] object-contain drop-shadow-2xl transition-all duration-300',
+        'pointer-events-none absolute bottom-0 z-[2] max-h-[78%] max-w-[42%] object-contain drop-shadow-2xl transition-[transform,opacity,filter] duration-300',
         position === 'left' && 'left-[18%] -translate-x-1/2',
         position === 'center' && 'left-1/2 -translate-x-1/2',
         position === 'right' && 'right-[18%] translate-x-1/2',
@@ -194,20 +194,22 @@ export function PreviewPlayer({ onClose }: { onClose: () => void }) {
   }))
 
   return (
-    <div className={clsx('preview-player fixed inset-0 z-60 bg-black', stage.effect?.name === 'shake' && 'stage-shake')} style={{ animationDuration: `${stage.effect?.duration ?? 0}ms` }} onClick={advance}>
+    <div className={clsx('preview-player fixed inset-0 z-60 bg-[var(--color-preview-paper)]', stage.effect?.name === 'shake' && 'stage-shake')} style={{ animationDuration: `${stage.effect?.duration ?? 0}ms` }} onClick={advance}>
       <audio ref={bgmRef} hidden />
       <audio ref={seRef} hidden />
 
       <div
         key={`bg-${stage.effect?.name === 'fade' ? stage.effect.key : stage.bg}`}
         className={clsx('absolute inset-0 bg-cover bg-center', stage.effect?.name === 'fade' && 'stage-fade')}
-        style={bgUrl ? { backgroundImage: `url("${bgUrl.replaceAll('"', '%22')}")`, animationDuration: `${stage.effect?.duration ?? 350}ms` } : { background: 'radial-gradient(circle at 50% 30%, #232a3d, #0d0f14)' }}
+        style={bgUrl ? { backgroundImage: `url("${bgUrl.replaceAll('"', '%22')}")`, animationDuration: `${stage.effect?.duration ?? 350}ms` } : { background: 'var(--preview-backdrop)' }}
       />
 
-      {POSITIONS.map((position) => <StagePortrait key={position} position={position} entry={stage.characters[position]} characters={project.characters} />)}
+      {frame.kind === 'say' && POSITIONS.map((position) => (
+        <StagePortrait key={position} position={position} entry={stage.characters[position]} characters={project.characters} />
+      ))}
 
-      {stage.effect?.name === 'flash' && <div key={`flash-${stage.effect.key}`} className="stage-flash pointer-events-none absolute inset-0 z-[4] bg-white" style={{ animationDuration: `${stage.effect.duration}ms` }} />}
-      {stage.effect?.name === 'dim' && <div key={`dim-${stage.effect.key}`} className="stage-dim pointer-events-none absolute inset-0 z-[4] bg-black" style={{ animationDuration: `${stage.effect.duration}ms` }} />}
+      {stage.effect?.name === 'flash' && <div key={`flash-${stage.effect.key}`} className="stage-flash pointer-events-none absolute inset-0 z-[4] bg-[var(--color-preview-flash)]" style={{ animationDuration: `${stage.effect.duration}ms` }} />}
+      {stage.effect?.name === 'dim' && <div key={`dim-${stage.effect.key}`} className="stage-dim pointer-events-none absolute inset-0 z-[4] bg-[var(--color-preview-paper)]" style={{ animationDuration: `${stage.effect.duration}ms` }} />}
 
       <div className="absolute top-4 right-4 z-10 flex gap-2" onClick={(event) => event.stopPropagation()}>
         {project.variables.length > 0 && <IconButton label="変数・セーブ" variant="solid" onClick={() => setPanel(panel === 'vars' ? 'none' : 'vars')}><Bug size={16} /></IconButton>}
@@ -221,7 +223,7 @@ export function PreviewPlayer({ onClose }: { onClose: () => void }) {
       {panel === 'vars' && (
         <div className="absolute top-16 right-4 z-10 flex max-h-[78vh] w-80 flex-col gap-3 overflow-y-auto rounded-xl border border-ink-600 bg-ink-950/95 p-3 text-xs shadow-2xl" onClick={(event) => event.stopPropagation()}>
           <section>
-            <div className="mb-2 flex items-center justify-between font-semibold text-ink-300"><span>変数の状態</span><Button variant="ghost" className="px-1.5 py-0.5 text-[11px]" onClick={savePreset}>プリセット保存</Button></div>
+            <div className="mb-2 flex items-center justify-between font-semibold text-ink-300"><span>変数の状態</span><Button variant="ghost" size="sm" onClick={savePreset}>プリセット保存</Button></div>
             <ul className="flex flex-col gap-1.5">
               {project.variables.map((variable) => (
                 <li key={variable.id} className="grid grid-cols-[1fr_8rem] items-center gap-2">
@@ -269,7 +271,7 @@ export function PreviewPlayer({ onClose }: { onClose: () => void }) {
 
       {frame.kind !== 'wait' && (
         <div className="absolute inset-x-[6%] bottom-[5%] z-[5] min-h-44 rounded-2xl border border-white/12 bg-ink-950/85 px-7 py-5 shadow-2xl backdrop-blur-md">
-          <div className="mb-2 h-6 text-lg font-bold" style={{ color: frame.speaker?.color ?? '#e7e9ee' }}>{frame.speaker?.name}</div>
+          <div className="mb-2 h-6 text-lg font-bold" style={{ color: frame.speaker?.color ?? 'var(--color-preview-ink)' }}>{frame.speaker?.name}</div>
           <p className={clsx('min-h-16 text-lg leading-loose whitespace-pre-wrap', frame.kind === 'end' && 'text-ink-300')}>
             {frame.kind === 'choice' ? frame.text : typed}
             {typing && <span className="animate-pulse">▌</span>}

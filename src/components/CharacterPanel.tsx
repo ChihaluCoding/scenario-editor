@@ -68,7 +68,7 @@ function CharacterEditor({ character, onClose }: { character: Character; onClose
           <span className="text-[11px] text-ink-400">立ち絵・表情差分</span>
           <Button
             variant="ghost"
-            className="px-1.5 py-0.5 text-xs"
+            size="sm"
             onClick={() => update(character.id, { portraits: [...character.portraits, { id: nanoid(7), name: `表情 ${character.portraits.length + 1}`, asset: '' }] })}
           >
             <Plus size={13} />追加
@@ -81,8 +81,8 @@ function CharacterEditor({ character, onClose }: { character: Character; onClose
             {character.portraits.map((portrait) => (
               <div key={portrait.id} className="rounded-lg border border-ink-700 p-2">
                 <div className="mb-2 flex items-center gap-2">
-                  <input value={portrait.name} onChange={(event) => update(character.id, { portraits: character.portraits.map((item) => item.id === portrait.id ? { ...item, name: event.target.value } : item) })} placeholder="差分名" className="field-input text-xs" />
-                  <IconButton label="差分を削除" variant="danger" onClick={() => update(character.id, { portraits: character.portraits.filter((item) => item.id !== portrait.id) })}><Trash2 size={13} /></IconButton>
+                  <input value={portrait.name} onChange={(event) => update(character.id, { portraits: character.portraits.map((item) => item.id === portrait.id ? { ...item, name: event.target.value } : item) })} placeholder="差分名" className="field-input text-[12px]" />
+                  <IconButton size="sm" label="差分を削除" variant="danger" onClick={() => update(character.id, { portraits: character.portraits.filter((item) => item.id !== portrait.id) })}><Trash2 size={12} /></IconButton>
                 </div>
                 <AssetInput value={portrait.asset} onChange={(asset) => update(character.id, { portraits: character.portraits.map((item) => item.id === portrait.id ? { ...item, asset } : item) })} accept="image/*" />
               </div>
@@ -115,16 +115,17 @@ export function CharacterPanel() {
     <section>
       <PanelHeading
         action={
-          <Button
+          <IconButton
+            size="sm"
+            label="キャラクターを追加"
             variant="ghost"
-            className="px-1.5 py-0.5 text-ink-300"
             onClick={() => {
               addCharacter(`キャラクター ${characters.length + 1}`)
               toast('キャラクターを追加しました。クリックで設定を編集できます')
             }}
           >
             <Plus size={14} />
-          </Button>
+          </IconButton>
         }
       >
         キャラクター ({characters.length})
@@ -134,15 +135,16 @@ export function CharacterPanel() {
 
       <ul className="flex flex-col gap-0.5">
         {characters.map((c) => (
-          <li key={c.id} className="group flex items-center gap-2 rounded-lg px-1.5 py-1.5 transition hover:bg-ink-800">
+          <li key={c.id} className="group flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-ink-800">
             <button onClick={() => setEditing(c.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
               <Avatar character={c} />
-              <span className="truncate">{c.name}</span>
+              <span className="truncate text-ink-300">{c.name}</span>
             </button>
             <IconButton
+              size="sm"
               label="削除"
               variant="danger"
-              className="opacity-0 transition group-hover:opacity-100"
+              className="context-actions opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
               onClick={async () => {
                 const accepted = await confirmAction({
                   title: `「${c.name}」を削除しますか？`,
@@ -153,7 +155,7 @@ export function CharacterPanel() {
                 if (accepted) removeCharacter(c.id)
               }}
             >
-              <Trash2 size={13} />
+              <Trash2 size={12} />
             </IconButton>
           </li>
         ))}

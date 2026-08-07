@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useDeferredValue, useMemo } from 'react'
 import { AlertTriangle, CircleAlert, CheckCircle2 } from 'lucide-react'
 import { useProject } from '@/store/project'
 import { findIssues, projectStats } from '@/lib/analysis'
@@ -7,18 +7,20 @@ import { ProductionInsights } from './production/ProductionInsights'
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-ink-700 bg-ink-850 px-2.5 py-2">
-      <div className="text-[10px] tracking-wide text-ink-400">{label}</div>
-      <div className="text-base font-semibold tabular-nums">{value}</div>
+    <div className="border-b border-ink-700 px-1 py-2">
+      <div className="truncate text-[10px] font-medium tracking-[0.04em] text-ink-400">{label}</div>
+      <div className="font-serif text-[17px] leading-tight font-semibold tabular-nums">{value}</div>
     </div>
   )
 }
 
 export function Inspector({ onNavigate }: { onNavigate: (sceneId: string, lineId?: string) => void }) {
   const project = useProject((s) => s.project)
-  const stats = useMemo(() => projectStats(project), [project])
-  const issues = useMemo(() => findIssues(project), [project])
-  const titleOf = (id: string) => project.scenes.find((s) => s.id === id)?.title ?? '?'
+  // 統計とチェックはプロジェクト全体の走査になるため、入力中は1テンポ遅らせて打鍵をブロックしない
+  const deferred = useDeferredValue(project)
+  const stats = useMemo(() => projectStats(deferred), [deferred])
+  const issues = useMemo(() => findIssues(deferred), [deferred])
+  const titleOf = (id: string) => deferred.scenes.find((s) => s.id === id)?.title ?? '?'
 
   return (
     <div className="flex flex-col gap-4">
@@ -37,7 +39,7 @@ export function Inspector({ onNavigate }: { onNavigate: (sceneId: string, lineId
       <section>
         <PanelHeading>チェック ({issues.length})</PanelHeading>
         {issues.length === 0 ? (
-          <p className="flex items-center gap-2 rounded-lg border border-good/30 bg-good/10 px-2.5 py-2 text-xs text-good">
+          <p className="flex items-center gap-2 rounded-md border border-good/25 bg-good/8 px-2.5 py-2 text-[11px] text-good">
             <CheckCircle2 size={14} />
             問題は見つかりませんでした
           </p>

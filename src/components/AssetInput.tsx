@@ -63,16 +63,16 @@ export function AssetInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="field-input text-xs"
+          className="field-input text-[12px]"
         />
       </div>
 
-      <IconButton label="ファイルを取り込む" variant="solid" onClick={() => inputRef.current?.click()}>
-        <Upload size={14} />
+      <IconButton size="sm" label="ファイルを取り込む" variant="solid" onClick={() => inputRef.current?.click()}>
+        <Upload size={13} />
       </IconButton>
       {value && (
-        <IconButton label="クリア" variant="danger" onClick={() => onChange('')}>
-          <X size={14} />
+        <IconButton size="sm" label="クリア" variant="danger" onClick={() => onChange('')}>
+          <X size={13} />
         </IconButton>
       )}
 

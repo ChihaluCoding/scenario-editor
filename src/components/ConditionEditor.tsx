@@ -77,34 +77,23 @@ export function ConditionEditor({
   const variables = useProject((s) => s.project.variables)
   const items = group?.items ?? []
 
-  if (variables.length === 0) return null
+  // 条件が付いていない行では何も描かない。追加の入口は行の操作列にあり、
+  // ここに常時ボタンを置くと条件のない行まで縦に間延びしてしまう。
+  if (variables.length === 0 || items.length === 0) return null
 
   const patch = (next: Partial<ConditionGroup>) => onChange({ mode: group?.mode ?? 'all', items, ...next })
   const setItem = (id: string, next: Partial<Condition>) =>
     patch({ items: items.map((c) => (c.id === id ? { ...c, ...next } : c)) })
 
-  if (items.length === 0) {
-    return (
-      <Button
-        variant="ghost"
-        className="self-start px-1.5 py-0.5 text-xs text-ink-400 hover:text-ink-100"
-        onClick={() => patch({ items: [newCondition(variables[0].id, variables[0].type)] })}
-      >
-        <Filter size={12} />
-        {label}を追加
-      </Button>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-1.5 rounded-lg border border-warn/25 bg-warn/6 p-2">
-      <div className="flex items-center gap-2 text-[11px] text-warn">
+    <div className="flex flex-col gap-1.5 rounded-md border border-warn/25 bg-warn/6 p-2">
+      <div className="flex items-center gap-2 text-[11px] font-medium text-warn">
         <Filter size={12} />
         {label}
         <select
           value={group?.mode ?? 'all'}
           onChange={(e) => patch({ mode: e.target.value as 'all' | 'any' })}
-          className="field-input w-28 cursor-pointer py-0.5 text-[11px]"
+          className="field-input w-28 cursor-pointer text-[11px]"
         >
           <option value="all">すべて満たす</option>
           <option value="any">いずれか満たす</option>
@@ -114,7 +103,7 @@ export function ConditionEditor({
       {items.map((c) => {
         const variable = variables.find((v) => v.id === c.varId)
         return (
-          <div key={c.id} className="flex items-center gap-1.5">
+          <div key={c.id} className="flex flex-wrap items-center gap-1.5">
             <VariableSelect
               value={c.varId}
               onChange={(id) => {
@@ -135,6 +124,7 @@ export function ConditionEditor({
             </select>
             <ValueInput variable={variable} value={c.value} onChange={(v) => setItem(c.id, { value: v })} />
             <IconButton
+              size="sm"
               label="条件を削除"
               variant="danger"
               onClick={() => {
@@ -150,7 +140,8 @@ export function ConditionEditor({
 
       <Button
         variant="ghost"
-        className="self-start px-1.5 py-0.5 text-[11px] text-ink-300"
+        size="sm"
+        className="self-start"
         onClick={() => patch({ items: [...items, newCondition(variables[0].id, variables[0].type)] })}
       >
         <Plus size={12} />
@@ -185,7 +176,7 @@ export function EffectEditor({
       {effects.map((e) => {
         const variable = variables.find((v) => v.id === e.varId)
         return (
-          <div key={e.id} className="flex items-center gap-1.5">
+          <div key={e.id} className="flex flex-wrap items-center gap-1.5">
             <VariableSelect
               value={e.varId}
               onChange={(id) => {
@@ -207,7 +198,7 @@ export function EffectEditor({
             {e.op !== 'toggle' && (
               <ValueInput variable={variable} value={e.value} onChange={(v) => setItem(e.id, { value: v })} />
             )}
-            <IconButton label="削除" variant="danger" onClick={() => onChange(effects.filter((x) => x.id !== e.id))}>
+            <IconButton size="sm" label="削除" variant="danger" onClick={() => onChange(effects.filter((x) => x.id !== e.id))}>
               <Trash2 size={12} />
             </IconButton>
           </div>
@@ -216,7 +207,8 @@ export function EffectEditor({
 
       <Button
         variant="ghost"
-        className="self-start px-1.5 py-0.5 text-xs text-ink-300"
+        size="sm"
+        className="self-start"
         onClick={() => onChange([...effects, newEffect(variables[0].id, variables[0].type)])}
       >
         <VariableIcon size={12} />

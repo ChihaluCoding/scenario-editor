@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-07",
+  "framework": "React 19 + Vite 8 + Tailwind CSS 4",
+  "font_stack": "Space Grotesk + Noto Sans JP + JetBrains Mono",
+  "palette": "Cobalt OKLCH semantic tokens with light and dark themes",
+  "motion": "CSS-only state feedback with reduced-motion support",
+  "spacing": "Named 4px spacing scale"
+}

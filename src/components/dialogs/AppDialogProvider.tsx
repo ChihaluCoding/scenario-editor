@@ -63,13 +63,13 @@ export function AppDialogProvider({ children }: { children: ReactNode }) {
     <AppDialogContext.Provider value={{ confirmAction, promptText }}>
       {children}
       {request && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onMouseDown={cancel}>
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[var(--color-overlay)] p-4 backdrop-blur-sm" onMouseDown={cancel}>
           <div
             role={request.type === 'confirm' ? 'alertdialog' : 'dialog'}
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={request.description ? descriptionId : undefined}
-            className="w-full max-w-md overflow-hidden rounded-xl border border-ink-700 bg-ink-850 shadow-2xl"
+            className="w-full max-w-md overflow-hidden rounded-xl border border-ink-700 bg-ink-850 shadow-pop"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="flex items-start gap-3 px-5 pt-5 pb-4">

@@ -7,24 +7,30 @@ import { bindToast, type ToastTone } from './toast'
 type Variant = 'ghost' | 'solid' | 'primary' | 'danger' | 'destructive'
 
 const VARIANTS: Record<Variant, string> = {
-  ghost: 'bg-transparent hover:bg-ink-700/70 border-transparent',
-  solid: 'bg-ink-800 hover:bg-ink-700 border-ink-700',
-  primary: 'bg-brand text-ink-950 font-semibold border-transparent hover:brightness-110',
-  danger: 'bg-transparent border-transparent text-ink-300 hover:bg-bad/15 hover:text-bad',
-  destructive: 'bg-bad text-white font-semibold border-transparent hover:brightness-110',
+  ghost: 'border-transparent bg-transparent text-ink-300 hover:bg-ink-800 hover:text-ink-100',
+  solid: 'border-ink-700 bg-ink-850 text-ink-100 shadow-card hover:border-ink-600 hover:bg-ink-800',
+  primary: 'border-transparent bg-brand font-semibold text-ink-950 shadow-raised hover:brightness-108',
+  danger: 'border-transparent bg-transparent text-ink-400 hover:bg-bad/12 hover:text-bad',
+  destructive: 'border-transparent bg-bad font-semibold text-[var(--color-error-ink)] shadow-raised hover:brightness-108',
 }
+
+/** 高さは2種類だけ。並んだときに視線の段差が出ないよう、他では上書きしない */
+const SIZES = { md: 'h-8 px-3 text-[13px]', sm: 'h-7 px-2 text-xs' } as const
 
 export function Button({
   variant = 'solid',
+  size = 'md',
   className,
   ...props
-}: ComponentProps<'button'> & { variant?: Variant }) {
+}: ComponentProps<'button'> & { variant?: Variant; size?: keyof typeof SIZES }) {
   return (
     <button
       {...props}
       className={clsx(
-        'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm transition',
-        'disabled:cursor-not-allowed disabled:opacity-35',
+        'inline-flex shrink-0 items-center gap-1.5 rounded-md border font-medium whitespace-nowrap',
+        'transition-[background-color,border-color,color,filter,opacity,transform] active:translate-y-px',
+        'disabled:pointer-events-none disabled:opacity-40',
+        SIZES[size],
         VARIANTS[variant],
         className,
       )}
@@ -32,16 +38,30 @@ export function Button({
   )
 }
 
-export function IconButton({ label, className, ...props }: ComponentProps<typeof Button> & { label: string }) {
-  return <Button {...props} title={label} aria-label={label} className={clsx('px-1.5 py-1', className)} />
+/** size="sm" は行内に並べる小さめの操作ボタン向け（台本行の右側など） */
+export function IconButton({
+  label,
+  size = 'md',
+  className,
+  ...props
+}: ComponentProps<typeof Button> & { label: string }) {
+  return (
+    <Button
+      {...props}
+      size={size}
+      title={label}
+      aria-label={label}
+      className={clsx('justify-center !px-0', size === 'sm' ? 'w-6' : 'w-[30px]', className)}
+    />
+  )
 }
 
 /* ---------------- Panel / Field ---------------- */
 
 export function PanelHeading({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-[11px] font-semibold tracking-[0.12em] text-ink-400 uppercase">{children}</h2>
+    <div className="mb-1.5 flex h-6 items-center justify-between gap-2">
+      <h2 className="truncate font-mono text-[11px] font-semibold tracking-[0.08em] text-ink-400 uppercase">{children}</h2>
       {action}
     </div>
   )
@@ -50,7 +70,7 @@ export function PanelHeading({ children, action }: { children: ReactNode; action
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className="text-[11px] text-ink-400">{label}</span>
+      <span className="text-xs font-medium text-ink-400">{label}</span>
       {children}
     </label>
   )
@@ -71,7 +91,7 @@ export function AutoTextarea({ className, value, ...props }: ComponentProps<'tex
       ref={ref}
       value={value}
       rows={1}
-      className={clsx('field-input resize-none leading-relaxed', className)}
+      className={clsx('field-input script-text resize-none', className)}
     />
   )
 }
@@ -103,16 +123,16 @@ export function Modal({
   if (!open) return null
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/45 p-4 backdrop-blur-[2px]"
       onMouseDown={onClose}
     >
       <div
-        className={clsx('w-full max-w-md rounded-xl border border-ink-700 bg-ink-850 shadow-2xl', className)}
+        className={clsx('w-full max-w-md rounded-xl border border-ink-700 bg-ink-850 shadow-pop', className)}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="border-b border-ink-700 px-5 py-3 font-semibold">{title}</div>
-        <div className="flex flex-col gap-3 px-5 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t border-ink-700 px-5 py-3">{footer}</div>}
+        <div className="px-5 pt-4 pb-1 text-[15px] font-semibold">{title}</div>
+        <div className="flex flex-col gap-3 px-5 py-3">{children}</div>
+        {footer && <div className="flex justify-end gap-2 px-5 pt-1 pb-4">{footer}</div>}
       </div>
     </div>
   )
@@ -120,7 +140,18 @@ export function Modal({
 
 /* ---------------- Dropdown ---------------- */
 
-export function Dropdown({ trigger, children }: { trigger: (open: boolean) => ReactNode; children: (close: () => void) => ReactNode }) {
+export function Dropdown({
+  trigger,
+  children,
+  placement = 'bottom',
+  mobileViewport = false,
+}: {
+  trigger: (open: boolean) => ReactNode
+  children: (close: () => void) => ReactNode
+  placement?: 'top' | 'bottom'
+  /** 狭い画面ではビューポート基準にして、端の操作ボタンから開いても切れないようにする。 */
+  mobileViewport?: boolean
+}) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -137,7 +168,14 @@ export function Dropdown({ trigger, children }: { trigger: (open: boolean) => Re
     <div ref={ref} className="relative">
       <div onClick={() => setOpen((v) => !v)}>{trigger(open)}</div>
       {open && (
-        <div className="absolute right-0 top-full z-40 mt-1.5 flex min-w-52 flex-col gap-0.5 rounded-lg border border-ink-700 bg-ink-850 p-1.5 shadow-2xl">
+        <div
+          className={clsx(
+            'absolute right-0 z-40 flex min-w-56 flex-col gap-0.5 rounded-lg border border-ink-700 bg-ink-850 p-1.5 shadow-pop',
+            mobileViewport
+              ? 'fixed right-3 bottom-20 left-3 min-w-0 sm:absolute sm:right-0 sm:bottom-full sm:left-auto sm:mb-1.5 sm:min-w-56'
+              : placement === 'top' ? 'bottom-full mb-1.5' : 'top-full mt-1.5',
+          )}
+        >
           {children(() => setOpen(false))}
         </div>
       )}
@@ -149,7 +187,7 @@ export function MenuItem({ icon, children, ...props }: ComponentProps<'button'> 
   return (
     <button
       {...props}
-      className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm text-ink-100 transition hover:bg-ink-700"
+      className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-[13px] text-ink-100 transition hover:bg-ink-800"
     >
       <span className="text-ink-400">{icon}</span>
       {children}
@@ -176,8 +214,8 @@ export function Toaster() {
         <div
           key={i.id}
           className={clsx(
-            'rounded-full border px-4 py-2 text-sm shadow-xl backdrop-blur',
-            i.tone === 'bad' ? 'border-bad/60 bg-bad/15 text-bad' : 'border-ink-600 bg-ink-800/95',
+            'rounded-full border px-4 py-2 text-[13px] shadow-pop backdrop-blur',
+            i.tone === 'bad' ? 'border-bad/50 bg-bad/12 text-bad' : 'border-ink-700 bg-ink-850/95 text-ink-100',
           )}
         >
           {i.msg}

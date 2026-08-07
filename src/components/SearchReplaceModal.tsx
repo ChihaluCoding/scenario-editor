@@ -122,14 +122,14 @@ export function SearchReplaceModal({
           <select
             value={filters.scope}
             onChange={(event) => patchFilters({ scope: event.target.value as SearchScope, lineKind: '', characterId: '' })}
-            className="field-input cursor-pointer text-xs"
+            className="field-input cursor-pointer text-[12px]"
           >
             {(Object.keys(SCOPE_LABELS) as SearchScope[]).map((scope) => <option key={scope} value={scope}>{SCOPE_LABELS[scope]}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1 text-[11px] text-ink-400">
           シーン
-          <select value={filters.sceneId} onChange={(event) => patchFilters({ sceneId: event.target.value })} className="field-input cursor-pointer text-xs">
+          <select value={filters.sceneId} onChange={(event) => patchFilters({ sceneId: event.target.value })} className="field-input cursor-pointer text-[12px]">
             <option value="">すべてのシーン</option>
             {project.scenes.map((scene) => <option key={scene.id} value={scene.id}>{scene.title || '(無題)'}</option>)}
           </select>
@@ -139,7 +139,7 @@ export function SearchReplaceModal({
           <select
             value={filters.lineKind}
             onChange={(event) => patchFilters({ lineKind: event.target.value as '' | LineKind, scope: event.target.value ? 'lines' : filters.scope })}
-            className="field-input cursor-pointer text-xs"
+            className="field-input cursor-pointer text-[12px]"
           >
             <option value="">すべての行</option>
             {(Object.keys(LINE_META) as LineKind[]).map((kind) => <option key={kind} value={kind}>{LINE_META[kind].label}</option>)}
@@ -150,7 +150,7 @@ export function SearchReplaceModal({
           <select
             value={filters.characterId}
             onChange={(event) => patchFilters({ characterId: event.target.value, scope: event.target.value ? 'lines' : filters.scope, lineKind: event.target.value ? 'say' : filters.lineKind })}
-            className="field-input cursor-pointer text-xs"
+            className="field-input cursor-pointer text-[12px]"
           >
             <option value="">すべての話者</option>
             {project.characters.map((character) => <option key={character.id} value={character.id}>{character.name}</option>)}
@@ -175,7 +175,7 @@ export function SearchReplaceModal({
         )}
       </div>
 
-      <div className="min-h-48 max-h-[46vh] overflow-y-auto rounded-lg border border-ink-700 bg-ink-900/55">
+      <div className="min-h-48 max-h-[46vh] overflow-y-auto rounded-lg border border-ink-700 bg-ink-900">
         {!query ? (
           <div className="grid min-h-48 place-items-center text-sm text-ink-400">プロジェクト内の文言を横断検索できます</div>
         ) : results.length === 0 ? (
@@ -183,22 +183,22 @@ export function SearchReplaceModal({
         ) : (
           <ul className="divide-y divide-ink-700/70">
             {results.map((result) => (
-              <li key={result.id} className="group flex items-center gap-3 px-3 py-2.5 hover:bg-ink-800/70">
+              <li key={result.id} className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-ink-800">
                 <button
                   disabled={!result.sceneId}
                   onClick={() => onNavigate(result)}
                   className="min-w-0 flex-1 text-left disabled:cursor-default"
                 >
                   <div className="mb-1 flex items-center gap-2 text-[11px] text-ink-400">
-                    <span className="rounded bg-ink-700 px-1.5 py-0.5 text-ink-300">{result.category}</span>
+                    <span className="chip">{result.category}</span>
                     <span className="truncate">{result.location}</span>
-                    <span className="ml-auto shrink-0">{result.occurrences}か所</span>
+                    <span className="ml-auto shrink-0 tabular-nums">{result.occurrences}か所</span>
                   </div>
-                  <p className="truncate text-sm text-ink-100">
+                  <p className="truncate text-ink-100">
                     <Highlight text={result.text} query={query} caseSensitive={filters.caseSensitive} />
                   </p>
                 </button>
-                {result.sceneId && <IconButton label="この場所へ移動" variant="ghost" onClick={() => onNavigate(result)}><ArrowRight size={15} /></IconButton>}
+                {result.sceneId && <IconButton size="sm" label="この場所へ移動" variant="ghost" onClick={() => onNavigate(result)}><ArrowRight size={14} /></IconButton>}
               </li>
             ))}
           </ul>

@@ -3,6 +3,7 @@ import {
   PALETTE,
   type Character,
   type Condition,
+  type ConditionGroup,
   type Effect,
   type Line,
   type LineKind,
@@ -35,6 +36,12 @@ export const newCondition = (varId: string, type: VarType): Condition => ({
   varId,
   op: type === 'number' ? '>=' : '==',
   value: defaultValueFor(type),
+})
+
+/** 最初の変数を使った条件グループ。行・選択肢の「条件を追加」から使う */
+export const initialConditionGroup = (variables: Variable[]): ConditionGroup => ({
+  mode: 'all',
+  items: [newCondition(variables[0].id, variables[0].type)],
 })
 
 export const newEffect = (varId: string, type: VarType): Effect => ({

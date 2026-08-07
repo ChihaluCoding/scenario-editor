@@ -12,8 +12,8 @@ export function ProductionInsights({ onNavigate }: { onNavigate: (sceneId: strin
   const project = useProject((state) => state.project)
   const deferredProject = useDeferredValue(project)
   const routes = useMemo(() => testRoutes(deferredProject), [deferredProject])
-  const characters = useMemo(() => characterProductionStats(project), [project])
-  const tasks = useMemo(() => project.scenes.flatMap((scene) =>
+  const characters = useMemo(() => characterProductionStats(deferredProject), [deferredProject])
+  const tasks = useMemo(() => deferredProject.scenes.flatMap((scene) =>
     scene.lines.flatMap((line, index) => line.todo || line.bookmarked ? [{
       sceneId: scene.id,
       lineId: line.id,
@@ -22,18 +22,18 @@ export function ProductionInsights({ onNavigate }: { onNavigate: (sceneId: strin
       todo: line.todo ?? '',
       bookmarked: Boolean(line.bookmarked),
     }] : []),
-  ), [project])
+  ), [deferredProject])
 
   return (
     <>
       <section>
         <PanelHeading>ルートテスト</PanelHeading>
         <div className="grid grid-cols-2 gap-1.5">
-          <div className="rounded-lg border border-ink-700 bg-ink-850 p-2">
+          <div className="rounded-md bg-ink-800 px-2 py-1.5">
             <div className="text-[10px] text-ink-400">シーン到達率</div>
             <div className="font-semibold text-brand">{percent(routes.sceneCoverage)}</div>
           </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-850 p-2">
+          <div className="rounded-md bg-ink-800 px-2 py-1.5">
             <div className="text-[10px] text-ink-400">行到達率</div>
             <div className="font-semibold text-brand">{percent(routes.lineCoverage)}</div>
           </div>
@@ -84,7 +84,7 @@ export function ProductionInsights({ onNavigate }: { onNavigate: (sceneId: strin
             const route = routes.endings.find((item) => item.sceneId === scene.id)
             return (
               <li key={scene.id}>
-                <button onClick={() => onNavigate(scene.id)} className="w-full rounded-md border border-ink-700 px-2 py-1.5 text-left hover:bg-ink-800">
+                <button onClick={() => onNavigate(scene.id)} className="w-full rounded-md px-2 py-1.5 text-left transition-colors hover:bg-ink-800">
                   <span className="flex items-center gap-1.5 text-xs font-medium"><Flag size={12} className="text-warn" />{ENDING_TYPE_LABEL[scene.ending!]} · {scene.title}</span>
                   <span className="mt-0.5 block truncate text-[10px] text-ink-400">{route ? (route.choices.join(' → ') || '開始シーンから到達') : '未到達'}</span>
                 </button>
@@ -99,7 +99,7 @@ export function ProductionInsights({ onNavigate }: { onNavigate: (sceneId: strin
         <PanelHeading>キャラクター分析</PanelHeading>
         <ul className="flex flex-col gap-1">
           {characters.map((character) => (
-            <li key={character.characterId} className="rounded-md border border-ink-700 px-2 py-1.5 text-[10px]">
+            <li key={character.characterId} className="rounded-md bg-ink-800 px-2 py-1.5 text-[10px]">
               <div className="flex items-center gap-1.5 text-xs font-medium"><UserRound size={12} className="text-brand" />{character.name}</div>
               <div className="mt-1 flex flex-wrap gap-x-2 text-ink-400">
                 <span>{character.lines}セリフ</span><span>{character.characters.toLocaleString()}字</span><span>{character.scenes}シーン</span>

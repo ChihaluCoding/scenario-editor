@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import {
   Background,
   BackgroundVariant,
@@ -36,9 +36,9 @@ function SceneNode({ data }: NodeProps<RFNode<SceneNodeData>>) {
       title={expanded ? 'ダブルクリックで詳細を閉じる' : 'ダブルクリックで詳細を開く'}
       data-flow-detail={expanded ? 'expanded' : 'compact'}
       className={clsx(
-        'rounded-lg border-2 bg-ink-850 px-3 py-2 text-left shadow-lg transition-all duration-200',
-        expanded ? 'w-[26rem]' : 'w-52',
-        selected ? 'border-brand' : unreachable ? 'border-bad/50' : 'border-ink-600',
+        'rounded-lg border bg-ink-850 px-3 py-2 text-left transition-[border-color,box-shadow] duration-200',
+        expanded ? 'w-[26rem] shadow-pop' : 'w-52 shadow-raised',
+        selected ? 'border-brand ring-2 ring-brand/30' : unreachable ? 'border-bad/50' : 'border-ink-700',
       )}
     >
       <Handle type="target" position={Position.Top} />
@@ -53,21 +53,21 @@ function SceneNode({ data }: NodeProps<RFNode<SceneNodeData>>) {
 
       {expanded && (
         <div className="nodrag nopan mt-2.5 border-t border-ink-700 pt-2.5">
-          <div className="mb-2 flex flex-wrap gap-1 text-[10px]">
-            <span className="rounded bg-ink-700 px-1.5 py-0.5">{SCENE_STATUS_LABEL[scene.status]}</span>
-            <span className="rounded bg-ink-700 px-1.5 py-0.5">チャプター：{scene.chapter || '未分類'}</span>
-            {scene.ending && <span className="rounded bg-warn/12 px-1.5 py-0.5 text-warn">{ENDING_TYPE_LABEL[scene.ending]} END</span>}
-            {scene.bg && <span className="rounded bg-brand/10 px-1.5 py-0.5 text-brand">背景あり</span>}
-            {scene.bgm && <span className="rounded bg-brand/10 px-1.5 py-0.5 text-brand">BGMあり</span>}
+          <div className="mb-2 flex flex-wrap gap-1">
+            <span className="chip">{SCENE_STATUS_LABEL[scene.status]}</span>
+            <span className="chip">チャプター：{scene.chapter || '未分類'}</span>
+            {scene.ending && <span className="chip border-warn/30 bg-warn/10 text-warn">{ENDING_TYPE_LABEL[scene.ending]} END</span>}
+            {scene.bg && <span className="chip border-brand/25 bg-brand/10 text-brand">背景あり</span>}
+            {scene.bgm && <span className="chip border-brand/25 bg-brand/10 text-brand">BGMあり</span>}
           </div>
 
-          <div className="mb-2 rounded-md bg-ink-900/55 px-2.5 py-2 text-[11px] leading-relaxed text-ink-300 whitespace-pre-wrap">
+          <div className="mb-2 rounded-md bg-ink-900 px-2.5 py-2 text-[11px] leading-relaxed text-ink-300 whitespace-pre-wrap">
             {scene.summary || 'あらすじ・演出メモはありません'}
           </div>
 
           {scene.tags.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1">
-              {scene.tags.map((tag) => <span key={tag} className="rounded-full border border-ink-700 px-1.5 py-0.5 text-[9px] text-ink-300">{tag}</span>)}
+              {scene.tags.map((tag) => <span key={tag} className="chip">{tag}</span>)}
             </div>
           )}
 
@@ -76,7 +76,7 @@ function SceneNode({ data }: NodeProps<RFNode<SceneNodeData>>) {
           ) : (
             <ol className="nowheel flex max-h-52 flex-col gap-1 overflow-y-auto pr-1">
               {scene.lines.map((line, index) => (
-                <li key={line.id} className="flex gap-2 rounded-md border border-ink-700/80 bg-ink-900/45 px-2 py-1.5">
+                <li key={line.id} className="flex gap-2 rounded-md bg-ink-900 px-2 py-1.5">
                   <span className="w-4 shrink-0 text-right text-[9px] text-ink-400">{index + 1}</span>
                   <span className="mt-0.5 h-3.5 w-0.5 shrink-0 rounded-full" style={{ background: LINE_META[line.kind].accent }} />
                   <div className="min-w-0 flex-1">
@@ -110,9 +110,11 @@ function FlowInner() {
   const selectScene = useProject((s) => s.selectScene)
   const moveScene = useProject((s) => s.moveScene)
   const [expandedSceneId, setExpandedSceneId] = useState<string | null>(null)
+  // ノード位置は即時反映したいが、到達判定とエッジ計算は全シーン走査になるのでドラッグ中は1テンポ遅らせる
+  const deferredProject = useDeferredValue(project)
+  const reachable = useMemo(() => reachableScenes(deferredProject), [deferredProject])
 
   const nodes = useMemo<RFNode<SceneNodeData>[]>(() => {
-    const reachable = reachableScenes(project)
     return project.scenes.map((scene) => ({
       id: scene.id,
       type: 'scene',
@@ -126,11 +128,11 @@ function FlowInner() {
         expanded: scene.id === expandedSceneId,
       },
     }))
-  }, [project, selectedSceneId, expandedSceneId])
+  }, [project, reachable, selectedSceneId, expandedSceneId])
 
   const edges = useMemo<RFEdge[]>(
     () =>
-      buildEdges(project).map((e, i) => ({
+      buildEdges(deferredProject).map((e, i) => ({
         id: `${e.from}-${e.to}-${i}`,
         source: e.from,
         target: e.to,
@@ -146,7 +148,7 @@ function FlowInner() {
         labelBgPadding: [6, 3] as [number, number],
         labelBgBorderRadius: 4,
       })),
-    [project],
+    [deferredProject],
   )
 
   const onNodesChange = useCallback(

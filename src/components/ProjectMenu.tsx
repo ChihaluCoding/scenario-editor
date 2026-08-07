@@ -34,7 +34,7 @@ function BackupModal({ onClose }: { onClose: () => void }) {
                 toast(`${when(b.createdAt)} の状態に復元しました`)
                 onClose()
               }}
-              className="flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left transition hover:bg-ink-700"
+              className="flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left transition hover:bg-ink-800"
             >
               <span>{when(b.createdAt)}</span>
               <span className="text-xs text-ink-400">
@@ -59,17 +59,17 @@ export function ProjectMenu() {
   return (
     <>
       <Dropdown
+        // プロジェクト名はトップバーの入力欄に出ているので、ここは切り替え操作だけを担う
         trigger={() => (
-          <Button variant="solid" className="max-w-52">
-            <FolderOpen size={15} className="shrink-0 text-ink-400" />
-            <span className="truncate">{currentTitle || '無題'}</span>
-            <ChevronDown size={14} className="shrink-0" />
+          <Button variant="ghost" title={`プロジェクトを切り替え（現在: ${currentTitle || '無題'}）`}>
+            <FolderOpen size={15} className="shrink-0" />
+            <ChevronDown size={13} className="shrink-0" />
           </Button>
         )}
       >
         {(close) => (
           <>
-            <div className="px-2.5 py-1 text-[11px] tracking-wide text-ink-400 uppercase">プロジェクト</div>
+            <div className="px-2.5 pt-1 pb-0.5 text-[10px] font-semibold tracking-[0.08em] text-ink-400 uppercase">プロジェクト</div>
             <ul className="max-h-64 overflow-y-auto">
               {projects.map((p) => (
                 <li key={p.id} className="group flex items-center">
@@ -78,11 +78,11 @@ export function ProjectMenu() {
                       close()
                       void switchProject(p.id)
                     }}
-                    className={`flex min-w-0 flex-1 flex-col rounded-md px-2.5 py-1.5 text-left transition hover:bg-ink-700 ${
-                      p.id === currentId ? 'text-brand' : ''
+                    className={`flex min-w-0 flex-1 flex-col rounded-md px-2.5 py-1.5 text-left transition hover:bg-ink-800 ${
+                      p.id === currentId ? 'font-semibold text-brand' : ''
                     }`}
                   >
-                    <span className="truncate text-sm">{p.title || '無題'}</span>
+                    <span className="truncate text-[13px]">{p.title || '無題'}</span>
                     <span className="text-[10px] text-ink-400">{when(p.updatedAt)}</span>
                   </button>
                   <button

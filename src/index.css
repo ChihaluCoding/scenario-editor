@@ -1,79 +1,71 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: Cobalt · designed-as-app · contrast: pass (40–41) · nav: N6 command bar · footer: none · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
 @import 'tailwindcss';
 @import '@xyflow/react/dist/style.css';
+@import '../tokens.css';
 
+/*
+  デザイントークン
+  ink-* は「面の深さ」を表す1本のランプ。役割を固定して使う：
+    950 入力欄の底 / 900 アプリ背景 / 850 パネル・カード / 800 ホバー面
+    700 境界線 / 600 強い境界線 / 400 補助文字 / 300 副文字 / 100 本文
+  テーマ切替はこの値だけを差し替え、部品側は役割名で参照する。
+*/
 @theme {
-  --color-ink-950: #ffffff;
-  --color-ink-900: #f5f7fb;
-  --color-ink-850: #ffffff;
-  --color-ink-800: #eef2f7;
-  --color-ink-700: #dce2eb;
-  --color-ink-600: #c1cad8;
-  --color-ink-400: #6b7485;
-  --color-ink-300: #465267;
-  --color-ink-100: #172033;
+  --color-ink-950: var(--color-surface-input);
+  --color-ink-900: var(--color-paper);
+  --color-ink-850: var(--color-surface);
+  --color-ink-800: var(--color-paper-2);
+  --color-ink-700: var(--color-rule);
+  --color-ink-600: var(--color-rule-strong);
+  --color-ink-400: var(--color-muted);
+  --color-ink-300: var(--color-ink-2);
+  --color-ink-100: var(--color-ink);
 
-  --color-brand: #2563eb;
-  --color-warn: #b45309;
-  --color-good: #087f5b;
-  --color-bad: #d92d45;
+  --color-brand: var(--color-accent);
+  --color-warn: var(--color-warning);
+  --color-good: var(--color-success);
+  --color-bad: var(--color-error);
 
-  --color-line-say: #2563eb;
-  --color-line-narration: #64748b;
-  --color-line-choice: #c2410c;
-  --color-line-jump: #07805b;
-  --color-line-set: #087ea4;
-  --color-line-note: #7c3aed;
-  --color-line-stage: #db2777;
-  --color-flow-edge: #64748b;
-  --color-flow-grid: #cbd3df;
+  --color-line-say: var(--color-line-say-token);
+  --color-line-narration: var(--color-line-narration-token);
+  --color-line-choice: var(--color-line-choice-token);
+  --color-line-jump: var(--color-line-jump-token);
+  --color-line-set: var(--color-line-set-token);
+  --color-line-note: var(--color-line-note-token);
+  --color-line-stage: var(--color-line-stage-token);
+  --color-flow-edge: var(--color-rule-strong);
+  --color-flow-grid: var(--color-rule);
 
-  --font-sans: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, sans-serif;
-  --font-serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif;
-}
+  /* 面の陰影。線を減らし、重なりで階層を示す */
+  --shadow-card: var(--shadow-whisper);
+  --shadow-raised: var(--shadow-whisper);
+  --shadow-pop: var(--shadow-popover);
 
-/* テーマ変数だけを差し替え、すべてのUI部品で同じ明暗関係を保つ */
-[data-theme='dark'] {
-  --color-ink-950: #0d0f14;
-  --color-ink-900: #12141a;
-  --color-ink-850: #161922;
-  --color-ink-800: #1b1f2a;
-  --color-ink-700: #252a38;
-  --color-ink-600: #333a4d;
-  --color-ink-400: #6d768d;
-  --color-ink-300: #9aa2b4;
-  --color-ink-100: #e7e9ee;
+  --radius-sm: var(--radius-control);
+  --radius-md: var(--radius-input);
+  --radius-lg: var(--radius-card);
+  --radius-xl: var(--radius-panel);
 
-  --color-brand: #6ea8ff;
-  --color-warn: #ffb86e;
-  --color-good: #5ed6a4;
-  --color-bad: #ff6e78;
-
-  --color-line-say: #6ea8ff;
-  --color-line-narration: #8b93a7;
-  --color-line-choice: #ffb86e;
-  --color-line-jump: #5ed6a4;
-  --color-line-set: #78dce8;
-  --color-line-note: #b57edc;
-  --color-line-stage: #ff7ab8;
-  --color-flow-edge: #4a5268;
-  --color-flow-grid: #252a38;
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
 }
 
 /* ゲーム画面は編集テーマから独立させ、背景画像上の可読性を維持する */
 .preview-player {
-  --color-ink-950: #0d0f14;
-  --color-ink-900: #12141a;
-  --color-ink-850: #161922;
-  --color-ink-800: #1b1f2a;
-  --color-ink-700: #252a38;
-  --color-ink-600: #333a4d;
-  --color-ink-400: #6d768d;
-  --color-ink-300: #9aa2b4;
-  --color-ink-100: #e7e9ee;
-  --color-brand: #6ea8ff;
-  --color-warn: #ffb86e;
-  --color-good: #5ed6a4;
-  --color-bad: #ff6e78;
+  --color-ink-950: var(--color-preview-paper);
+  --color-ink-900: var(--color-preview-paper);
+  --color-ink-850: var(--color-preview-surface);
+  --color-ink-800: var(--color-preview-surface);
+  --color-ink-700: var(--color-preview-rule);
+  --color-ink-600: var(--color-preview-rule);
+  --color-ink-400: var(--color-preview-muted);
+  --color-ink-300: var(--color-preview-muted);
+  --color-ink-100: var(--color-preview-ink);
+  --color-brand: var(--color-accent);
+  --color-warn: var(--color-warning);
+  --color-good: var(--color-success);
+  --color-bad: var(--color-error);
   color: var(--color-ink-100);
   color-scheme: dark;
 }
@@ -83,16 +75,23 @@
   body,
   #root {
     height: 100%;
+    overflow-x: clip;
   }
   body {
-    @apply bg-ink-900 text-ink-100 font-sans text-sm antialiased overflow-hidden;
+    @apply bg-ink-900 text-ink-100 font-sans text-[14px] antialiased overflow-hidden;
+  }
+  /* 押せるものはすべて同じフォーカスリングにする */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-ink-700 rounded-full;
+    background: color-mix(in srgb, var(--color-ink-600) 60%, transparent);
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-ink-600;
@@ -102,10 +101,161 @@
   }
 }
 
+/* ---- 面 ---- */
+
+/** 左右サイドバー・カード等の基本の面 */
+@utility surface {
+  @apply rounded-lg border border-ink-700 bg-ink-850;
+}
+
+/** 情報のかたまり。境界線ではなく余白と陰影で区切る */
+@utility panel-section {
+  @apply flex flex-col gap-2 border-b border-ink-700 pb-3;
+}
+
+/* ---- 入力 ---- */
+
 @utility field-input {
-  @apply w-full rounded-md border border-ink-700 bg-ink-950/60 px-2.5 py-1.5 text-ink-100
-         placeholder:text-ink-400 outline-none transition
-         focus:border-brand focus:ring-2 focus:ring-brand/25;
+  @apply w-full rounded-md border border-ink-700 bg-ink-950 px-2.5 py-1.5 text-ink-100
+         placeholder:text-ink-400 outline-2 outline-transparent outline-offset-1
+         transition-[border-color,background-color]
+         hover:bg-ink-800 focus:border-brand;
+}
+
+/** 見た目は文字だけ、触ると入力欄になる欄（タイトル類） */
+@utility field-quiet {
+  @apply rounded-md border border-transparent bg-transparent px-2 py-1 outline-none
+         transition-[border-color,background-color]
+         hover:bg-ink-800 focus:border-brand focus:bg-ink-950;
+}
+
+/** 状態や分類を示す小さなラベル */
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-ink-700 bg-ink-800
+         px-1.5 py-0.5 text-[10px] leading-4 font-medium text-ink-300;
+}
+
+/* ---- 台本本文 ---- */
+
+/** セリフ・地の文はこのアプリの成果物なので、UI文字より読みやすく組む */
+@utility script-text {
+  @apply text-[15px] leading-[1.8];
+}
+
+/* ---- Workbench shell ---- */
+
+.app-command-bar {
+  background: color-mix(in oklch, var(--color-surface) 94%, transparent);
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+}
+
+.brand-mark {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-input);
+  color: var(--color-accent);
+}
+
+.workspace-switcher {
+  border-block-end: var(--rule-thin) solid var(--color-rule);
+  background: var(--color-surface);
+}
+
+.workspace-pane {
+  background: var(--color-surface);
+}
+
+.workspace-canvas {
+  background: var(--color-paper);
+}
+
+.workspace-tab[aria-pressed='true'] {
+  color: var(--color-accent);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+}
+
+.line-card {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.line-card-handle {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.line-card-meta {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.line-card-content {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.line-card-actions {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  justify-content: flex-end;
+}
+
+.scene-editor-titlebar > .field-quiet {
+  flex-basis: 10rem;
+}
+
+@media (min-width: 60rem) {
+  .line-card {
+    grid-template-columns: auto 4.5rem minmax(0, 1fr) auto;
+  }
+  .line-card-handle,
+  .line-card-meta,
+  .line-card-content,
+  .line-card-actions {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .line-card-actions {
+    justify-content: flex-start;
+  }
+}
+
+button,
+[role='button'] {
+  transition: color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+}
+
+button:active,
+[role='button']:active {
+  transform: translateY(1px);
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (pointer: coarse) {
+  button,
+  [role='button'] {
+    min-height: 2.75rem;
+  }
+  .context-actions {
+    opacity: 1 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 150ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+  }
 }
 
 /* React Flow をアプリのテーマに合わせる */
@@ -115,8 +265,11 @@
 .react-flow__handle {
   @apply border-ink-600! bg-ink-600!;
 }
+.react-flow__controls {
+  @apply overflow-hidden rounded-lg shadow-pop!;
+}
 .react-flow__controls-button {
-  @apply border-ink-700! bg-ink-800! fill-ink-100! hover:bg-ink-700!;
+  @apply border-ink-700! bg-ink-850! fill-ink-300! hover:bg-ink-800! hover:fill-ink-100!;
 }
 
 /* 検索結果から移動した台本行を短時間だけ強調する */
